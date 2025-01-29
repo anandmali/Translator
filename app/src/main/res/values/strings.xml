@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Translator</string>
+    <string name="action_go">Go</string>
+    <string name="translator_title">Translator</string>
+    <string name="label_audio">Your speech as text</string>
+    <string name="label_language_identified">Language identified</string>
+    <string name="label_language_translate">Language to translate</string>
+    <string name="prompt_placeholder">Provide a recipe for the baked goods in the image</string>
+    <string name="image1_description">Cupcake</string>
+    <string name="image2_description">Cookies</string>
+    <string name="image3_description">Cake</string>
+    <string name="results_placeholder">(Results will appear here)</string>
+</resources>

@@ -1,4 +1,4 @@
-package com.anandmali.translator
+package com.anandmali.translator.view
 
 /**
  * A sealed hierarchy describing the state of the text generation.

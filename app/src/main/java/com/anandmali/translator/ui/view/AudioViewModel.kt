@@ -1,4 +1,4 @@
-package com.anandmali.translator.view
+package com.anandmali.translator.ui.view
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,7 +27,7 @@ class AudioViewModel @Inject constructor(private val geminiRepository: GeminiRep
             val result = geminiRepository.translateUsingGemini(target, data)
             result?.let {
                 _uiState.value = UiState.Success(it.toString() ?: "")
-            } ?: kotlin.run {
+            } ?: run {
                 _uiState.value = UiState.Error("Error translating the text")
             }
         }

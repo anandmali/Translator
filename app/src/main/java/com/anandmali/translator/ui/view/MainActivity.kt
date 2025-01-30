@@ -1,4 +1,4 @@
-package com.anandmali.translator.view
+package com.anandmali.translator.ui.view
 
 import android.content.ActivityNotFoundException
 import android.content.Intent

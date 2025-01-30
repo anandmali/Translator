@@ -1,4 +1,4 @@
-package com.anandmali.translator.view
+package com.anandmali.translator.ui.view
 
 
 import androidx.compose.foundation.Image

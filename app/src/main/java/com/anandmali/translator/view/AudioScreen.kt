@@ -1,7 +1,6 @@
 package com.anandmali.translator.view
 
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,9 +11,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,8 +34,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -53,16 +53,11 @@ fun AudioScreen(
 ) {
     val placeholderResult = stringResource(R.string.results_placeholder)
     var result by rememberSaveable { mutableStateOf(placeholderResult) }
-    var speechResult by remember { mutableStateOf("") }
-    val context = LocalContext.current
     val uiState by audioViewModel.uiState.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     var languageSelected by remember { mutableStateOf(supportedLanguages[29]) }
-
-    fun translateSpokenData(text: String) {
-        val targetLanguage = languageSelected.displayName
-        audioViewModel.translateText(target = targetLanguage, data = text)
-    }
+    var speechRecognised by remember { mutableStateOf("") }
+    val speechRecognizedLanguage by audioViewModel.speechLanguage.collectAsState()
 
     Column(
         modifier = Modifier
@@ -78,8 +73,8 @@ fun AudioScreen(
         ExtendedFloatingActionButton(
             onClick = {
                 launchSpeechRecogniser { result ->
-                    speechResult = result
-//                    audioViewModel.detectLanguageOfText(result)
+                    speechRecognised = result
+                    audioViewModel.detectLanguageOfText(result)
                 }
             },
             icon = { Icon(Icons.Filled.Mic, "Floating button to speak") },
@@ -93,42 +88,61 @@ fun AudioScreen(
             text = stringResource(R.string.label_audio),
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
         )
 
         Text(
-            text = speechResult.ifEmpty { stringResource(R.string.label_audio) },
+            text = speechRecognised.ifEmpty { stringResource(R.string.label_audio) },
             style = MaterialTheme.typography.bodyMedium,
             minLines = 2,
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.secondaryContainer)
+
         )
 
         Text(
             text = stringResource(R.string.label_language_identified),
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
         )
 
-        Text(
-            text = "Your language",
-            style = MaterialTheme.typography.bodyMedium,
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
+                .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.secondaryContainer)
-        )
+                .clip(CircleShape)
+
+        ) {
+            Image(
+                painter = rememberVectorPainter(image = Icons.Filled.Language),
+                contentDescription = "Language Icon"
+            )
+
+            Text(
+                text = speechRecognizedLanguage,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp, end = 8.dp)
+            )
+        }
 
         Text(
             text = "Choose language",
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
         )
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.secondaryContainer)
         ) {
             Row(
                 horizontalArrangement = Arrangement.Start,
@@ -139,10 +153,18 @@ fun AudioScreen(
                     }
                     .fillMaxWidth()
             ) {
-                Text(text = languageSelected.displayName)
                 Image(
                     painter = rememberVectorPainter(image = Icons.Filled.Language),
-                    contentDescription = "DropDown Icon"
+                    contentDescription = "Language Icon"
+                )
+                Text(
+                    text = languageSelected.displayName,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                )
+                Image(
+                    painter = rememberVectorPainter(image = Icons.Filled.ArrowDropDown),
+                    contentDescription = "DropDown Icon",
+                    modifier = Modifier.size(24.dp)
                 )
             }
             DropdownMenu(
@@ -162,8 +184,11 @@ fun AudioScreen(
         }
 
         ElevatedButton(onClick = {
-            translateSpokenData(speechResult)
-        }, modifier = Modifier.padding(top = 16.dp)) {
+            audioViewModel.translateText(
+                target = languageSelected.displayName,
+                data = speechRecognised
+            )
+        }, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)) {
             Text("Translate")
         }
 
@@ -179,16 +204,15 @@ fun AudioScreen(
                 textColor = MaterialTheme.colorScheme.onSurface
                 result = (uiState as UiState.Success).outputText
             }
-            val scrollState = rememberScrollState()
             Text(
                 text = result,
                 textAlign = TextAlign.Start,
                 color = textColor,
+                minLines = 2,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(16.dp)
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
             )
         }
     }

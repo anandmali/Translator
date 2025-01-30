@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Language
@@ -74,7 +76,7 @@ fun AudioScreen(
             onClick = {
                 launchSpeechRecogniser { result ->
                     speechRecognised = result
-                    audioViewModel.detectLanguageOfText(result)
+                    audioViewModel.getLanguageOfText(result)
                 }
             },
             icon = { Icon(Icons.Filled.Mic, "Floating button to speak") },
@@ -192,6 +194,7 @@ fun AudioScreen(
             Text("Translate")
         }
 
+        val scrollState = rememberScrollState()
 
         if (uiState is UiState.Loading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -212,6 +215,7 @@ fun AudioScreen(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .fillMaxWidth()
+                    .verticalScroll(scrollState)
                     .background(MaterialTheme.colorScheme.secondaryContainer)
             )
         }

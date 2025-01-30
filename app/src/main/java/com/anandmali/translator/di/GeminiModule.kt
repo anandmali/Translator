@@ -18,7 +18,7 @@ object GeminiModule {
             apiKey = BuildConfig.apiKey,
             modelName = "gemini-1.5-flash",
             generationConfig = generationConfig {
-                temperature = 0f
+                temperature = 0.4f
                 maxOutputTokens = 10000
             }
         )

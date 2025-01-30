@@ -33,7 +33,7 @@ class AudioViewModel @Inject constructor(private val geminiRepository: GeminiRep
         }
     }
 
-    fun detectLanguageOfText(data: String) {
+    fun getLanguageOfText(data: String) {
         viewModelScope.launch {
             _speechLanguage.value = "Recognising the language ..."
             val language = geminiRepository.getLanguageOf(data)

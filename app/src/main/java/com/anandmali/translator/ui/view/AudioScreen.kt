@@ -45,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.anandmali.translator.R
+import com.anandmali.translator.model.Language
 import com.anandmali.translator.model.supportedLanguages
 
 
@@ -86,104 +87,20 @@ fun AudioScreen(
                 .padding(16.dp)
         )
 
-        Text(
-            text = stringResource(R.string.label_audio),
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-        )
+        SpokenText(speechRecognised)
 
-        Text(
-            text = speechRecognised.ifEmpty { stringResource(R.string.label_audio) },
-            style = MaterialTheme.typography.bodyMedium,
-            minLines = 2,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.secondaryContainer)
+        SpokenLanguage(speechRecognizedLanguage)
 
-        )
-
-        Text(
-            text = stringResource(R.string.label_language_identified),
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-        )
-
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.secondaryContainer)
-                .clip(CircleShape)
-
-        ) {
-            Image(
-                painter = rememberVectorPainter(image = Icons.Filled.Language),
-                contentDescription = "Language Icon"
-            )
-
-            Text(
-                text = speechRecognizedLanguage,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 8.dp, end = 8.dp)
-            )
-        }
-
-        Text(
-            text = "Choose language",
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.secondaryContainer)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clickable {
-                        expanded = true
-                    }
-                    .fillMaxWidth()
-            ) {
-                Image(
-                    painter = rememberVectorPainter(image = Icons.Filled.Language),
-                    contentDescription = "Language Icon"
-                )
-                Text(
-                    text = languageSelected.displayName,
-                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
-                )
-                Image(
-                    painter = rememberVectorPainter(image = Icons.Filled.ArrowDropDown),
-                    contentDescription = "DropDown Icon",
-                    modifier = Modifier.size(24.dp)
-                )
+        SelectLanguageToTranslate(
+            expanded,
+            languageSelected,
+            stateChange = { state ->
+                expanded = state
+            },
+            languageSelected = { language ->
+                languageSelected = language
             }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                supportedLanguages.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option.displayName) },
-                        onClick = {
-                            languageSelected = option
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
+        )
 
         ElevatedButton(onClick = {
             audioViewModel.translateText(
@@ -223,9 +140,143 @@ fun AudioScreen(
 
 }
 
-
-@Preview(showSystemUi = true)
 @Composable
-fun AudioScreenPreview() {
-    AudioScreen { }
+fun SpokenText(speechRecognised: String) {
+    Text(
+        text = stringResource(R.string.label_audio),
+        style = MaterialTheme.typography.bodyLarge,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+    )
+
+    Text(
+        text = speechRecognised.ifEmpty { stringResource(R.string.label_audio) },
+        style = MaterialTheme.typography.bodyMedium,
+        minLines = 2,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+
+    )
+
+}
+
+@Composable
+fun SpokenLanguage(speechRecognizedLanguage: String) {
+    Text(
+        text = stringResource(R.string.label_language_identified),
+        style = MaterialTheme.typography.bodyLarge,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+    )
+
+    Row(
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .clip(CircleShape)
+
+    ) {
+        Image(
+            painter = rememberVectorPainter(image = Icons.Filled.Language),
+            contentDescription = "Language Icon"
+        )
+
+        Text(
+            text = speechRecognizedLanguage,
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = 1,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp, end = 8.dp)
+        )
+    }
+
+}
+
+@Composable
+fun SelectLanguageToTranslate(
+    currentState: Boolean,
+    currentLanguage: Language,
+    stateChange: (state: Boolean) -> Unit,
+    languageSelected: (language: Language) -> Unit
+) {
+    Text(
+        text = "Choose language",
+        style = MaterialTheme.typography.bodyLarge,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable {
+                    stateChange(true)
+                }
+                .fillMaxWidth()
+        ) {
+            Image(
+                painter = rememberVectorPainter(image = Icons.Filled.Language),
+                contentDescription = "Language Icon"
+            )
+            Text(
+                text = currentLanguage.displayName,
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+            )
+            Image(
+                painter = rememberVectorPainter(image = Icons.Filled.ArrowDropDown),
+                contentDescription = "DropDown Icon",
+                modifier = Modifier.size(24.dp)
+            )
+        }
+        DropdownMenu(
+            expanded = currentState,
+            onDismissRequest = {
+                stateChange(false)
+            }
+        ) {
+            supportedLanguages.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option.displayName) },
+                    onClick = {
+                        languageSelected(option)
+                        stateChange(false)
+                    }
+                )
+            }
+        }
+    }
+
+}
+
+@Preview()
+@Composable
+fun SpokenTextPreview() {
+    SpokenText("Some random speech text")
+}
+
+@Preview()
+@Composable
+fun SpokenLanguagePreview() {
+    SpokenLanguage("English")
+}
+
+@Preview
+@Composable
+fun SelectLanguageToTranslatePreview() {
+    SelectLanguageToTranslate(
+        false,
+        Language("Icelandic", "is"),
+        {},
+        {}
+    )
 }

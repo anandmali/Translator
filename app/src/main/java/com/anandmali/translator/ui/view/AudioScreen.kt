@@ -147,7 +147,7 @@ fun AudioScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .verticalScroll(scrollState)
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                        .padding(4.dp)
                 )
             }
         }

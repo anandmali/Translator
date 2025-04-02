@@ -3,6 +3,7 @@ package com.anandmali.translator.ui.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,12 +14,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -26,6 +28,7 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,17 +39,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.anandmali.translator.R
 import com.anandmali.translator.model.Language
 import com.anandmali.translator.model.supportedLanguages
+import com.anandmali.translator.ui.theme.TranslatorTheme
 
 
 @Composable
@@ -102,13 +105,11 @@ fun AudioScreen(
             }
         )
 
-        ElevatedButton(onClick = {
+        TranslateButton {
             audioViewModel.translateText(
                 target = languageSelected.displayName,
                 data = speechRecognised
             )
-        }, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)) {
-            Text("Translate")
         }
 
         val scrollState = rememberScrollState()
@@ -124,17 +125,31 @@ fun AudioScreen(
                 textColor = MaterialTheme.colorScheme.onSurface
                 result = (uiState as UiState.Success).outputText
             }
-            Text(
-                text = result,
-                textAlign = TextAlign.Start,
-                color = textColor,
-                minLines = 2,
+
+            Box(
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.secondary,
+                        RoundedCornerShape(4.dp)
+                    )
+                    .background(
+                        MaterialTheme.colorScheme.secondaryContainer,
+                        RoundedCornerShape(4.dp)
+                    )
                     .fillMaxWidth()
-                    .verticalScroll(scrollState)
-                    .background(MaterialTheme.colorScheme.secondaryContainer)
-            )
+            ) {
+                Text(
+                    text = result,
+                    textAlign = TextAlign.Start,
+                    color = textColor,
+                    minLines = 2,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState)
+                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                )
+            }
         }
     }
 
@@ -142,58 +157,88 @@ fun AudioScreen(
 
 @Composable
 fun SpokenText(speechRecognised: String) {
-    Text(
-        text = stringResource(R.string.label_audio),
-        style = MaterialTheme.typography.bodyLarge,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-    )
+    Column {
+        Text(
+            text = stringResource(R.string.label_audio),
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+        )
 
-    Text(
-        text = speechRecognised.ifEmpty { stringResource(R.string.label_audio) },
-        style = MaterialTheme.typography.bodyMedium,
-        minLines = 2,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-
-    )
+        Box(
+            modifier = Modifier
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.secondary,
+                    RoundedCornerShape(4.dp)
+                )
+                .background(
+                    MaterialTheme.colorScheme.secondaryContainer,
+                    RoundedCornerShape(4.dp)
+                )
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = speechRecognised.ifEmpty { stringResource(R.string.label_audio) },
+                style = MaterialTheme.typography.bodyMedium,
+                minLines = 2,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .padding(4.dp)
+            )
+        }
+    }
 
 }
 
 @Composable
 fun SpokenLanguage(speechRecognizedLanguage: String) {
-    Text(
-        text = stringResource(R.string.label_language_identified),
-        style = MaterialTheme.typography.bodyLarge,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-    )
-
-    Row(
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-            .clip(CircleShape)
-
-    ) {
-        Image(
-            painter = rememberVectorPainter(image = Icons.Filled.Language),
-            contentDescription = "Language Icon"
-        )
-
+    Column {
         Text(
-            text = speechRecognizedLanguage,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 8.dp, end = 8.dp)
+            text = stringResource(R.string.label_language_identified),
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
         )
-    }
 
+        Box(
+            modifier = Modifier
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.secondary,
+                    RoundedCornerShape(4.dp)
+                )
+                .fillMaxWidth()
+                .background(
+                    MaterialTheme.colorScheme.secondaryContainer,
+                    RoundedCornerShape(4.dp)
+                )
+
+        ) {
+
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+            ) {
+                Image(
+                    painter = rememberVectorPainter(image = Icons.Filled.Language),
+                    contentDescription = "Language Icon"
+                )
+
+                Text(
+                    text = speechRecognizedLanguage,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 8.dp)
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -203,80 +248,133 @@ fun SelectLanguageToTranslate(
     stateChange: (state: Boolean) -> Unit,
     languageSelected: (language: Language) -> Unit
 ) {
-    Text(
-        text = "Choose language",
-        style = MaterialTheme.typography.bodyLarge,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-    )
+    Column {
+        Text(
+            text = "Choose language",
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+        )
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
+        Box(
             modifier = Modifier
-                .clickable {
-                    stateChange(true)
-                }
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.secondary,
+                    RoundedCornerShape(4.dp)
+                )
+                .background(
+                    MaterialTheme.colorScheme.secondaryContainer,
+                    RoundedCornerShape(4.dp)
+                )
                 .fillMaxWidth()
         ) {
-            Image(
-                painter = rememberVectorPainter(image = Icons.Filled.Language),
-                contentDescription = "Language Icon"
-            )
-            Text(
-                text = currentLanguage.displayName,
-                modifier = Modifier.padding(start = 8.dp, end = 8.dp)
-            )
-            Image(
-                painter = rememberVectorPainter(image = Icons.Filled.ArrowDropDown),
-                contentDescription = "DropDown Icon",
-                modifier = Modifier.size(24.dp)
-            )
-        }
-        DropdownMenu(
-            expanded = currentState,
-            onDismissRequest = {
-                stateChange(false)
-            }
-        ) {
-            supportedLanguages.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option.displayName) },
-                    onClick = {
-                        languageSelected(option)
-                        stateChange(false)
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clickable {
+                        stateChange(true)
                     }
+                    .fillMaxWidth()
+                    .padding(4.dp)
+            ) {
+                Image(
+                    painter = rememberVectorPainter(image = Icons.Filled.Language),
+                    contentDescription = "Language Icon"
                 )
+                Text(
+                    text = currentLanguage.displayName,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                )
+                Image(
+                    painter = rememberVectorPainter(image = Icons.Filled.ArrowDropDown),
+                    contentDescription = "DropDown Icon",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            DropdownMenu(
+                expanded = currentState,
+                onDismissRequest = {
+                    stateChange(false)
+                }
+            ) {
+                supportedLanguages.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option.displayName) },
+                        onClick = {
+                            languageSelected(option)
+                            stateChange(false)
+                        }
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+fun TranslateButton(
+    onClick: () -> Unit
+) {
+    ElevatedButton(
+        onClick = {
+            onClick()
+        },
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        modifier = Modifier
+            .padding(top = 16.dp, bottom = 8.dp)
+    ) {
+        Text(
+            "Translate",
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+    }
+
 
 }
 
-@Preview()
+@PreviewLightDark
 @Composable
 fun SpokenTextPreview() {
-    SpokenText("Some random speech text")
+    TranslatorTheme {
+        Surface {
+            SpokenText("Some random speech text")
+        }
+    }
 }
 
-@Preview()
+@PreviewLightDark
 @Composable
 fun SpokenLanguagePreview() {
-    SpokenLanguage("English")
+    TranslatorTheme {
+        Surface {
+            SpokenLanguage("English")
+        }
+    }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 fun SelectLanguageToTranslatePreview() {
-    SelectLanguageToTranslate(
-        false,
-        Language("Icelandic", "is"),
-        {},
-        {}
-    )
+    TranslatorTheme {
+        Surface {
+            SelectLanguageToTranslate(
+                false,
+                Language("Icelandic", "is"),
+                {},
+                {}
+            )
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun TranslateButtonPreview() {
+    TranslatorTheme {
+        Surface {
+            TranslateButton { }
+        }
+    }
 }
